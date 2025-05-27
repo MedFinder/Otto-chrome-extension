@@ -1,12 +1,15 @@
-# React + Vite
+# Otto – Smart Task Assistant Chrome Extension
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Otto is a contextual smart assistant Chrome Extension that enhances productivity by automating and streamlining task management on popular to-do list platforms such as Todoist and Microsoft To Do.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Objective
 
-## Expanding the ESLint configuration
+enhances and automates task management workflows on popular todo list applications (such as Todoist, Microsoft To Do) by overlaying an interactive side panel that provides contextual suggestions and assistant-like interactions..
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 🧠 Core Features
+
+✅ Platform Detection
+Automatically detects when supported apps are active (e.g., todoist.com, to-do.live.com).
+
+Uses domain matching and/or DOM pattern recognition for accurate detection.
