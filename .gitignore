@@ -1,0 +1,11 @@
+# Ignore node dependencies
+node_modules/
+
+# Ignore build output
+dist/
+
+# Optional: system and IDE files
+.DS_Store
+.env
+*.log
+.vscode/
