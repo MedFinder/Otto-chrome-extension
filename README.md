@@ -13,3 +13,12 @@ enhances and automates task management workflows on popular todo list applicatio
 Automatically detects when supported apps are active (e.g., todoist.com, to-do.live.com).
 
 Uses domain matching and/or DOM pattern recognition for accurate detection.
+
+#### Development Setup
+
+- git clone https://github.com/your-username/otto-extension.git
+- cd otto-extension
+- npm install
+- npm run build
+
+Then, load the /dist folder as an unpacked extension in chrome://extensions.
