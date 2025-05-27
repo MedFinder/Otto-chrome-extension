@@ -1,0 +1,50 @@
+{
+    "name": "Otto",
+    "description": "Overlay smart assistant on Todoist and Microsoft To Do",
+    "version": "1.0",
+    "manifest_version": 3,
+    "permissions": [
+        "scripting",
+        "activeTab"
+    ],
+    "host_permissions": [
+        "*://*.todoist.com/*",
+        "*://*.to-do.live.com/*",
+        "*://to-do.microsoft.com/*"
+    ],
+    "action": {
+        "default_title": "Activate Smart Assistant"
+    },
+    "side_panel": {
+        "default_path": "index.html"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.todoist.com/*",
+                "*://*.to-do.live.com/*",
+                "*://to-do.microsoft.com/*"
+            ],
+            "js": [
+                "inject.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "index.html",
+                "/src/main.js",
+                "/src/*.css",
+                "/src/assets/*"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ]
+}
