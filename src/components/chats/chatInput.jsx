@@ -64,7 +64,7 @@ const InputTextStyled = styled.div`
 
   .text_area {
     width: -webkit-fill-available;
-    height: 100%;
+    height: 80%;
     border: none;
     resize: none;
 

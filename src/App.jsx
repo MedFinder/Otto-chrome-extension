@@ -5,7 +5,9 @@ import Header from "./components/header";
 import styled from "styled-components";
 import "./index.css";
 
-function App() {
+const App =()=> {
+  const params = new URLSearchParams(window.location.search);
+  const [view, setView] = useState(params.get("view"));
   const [chatQues, setChatQues] = useState([
     {
       id: 1,
@@ -27,23 +29,43 @@ function App() {
       ],
     },
   ]);
-  return (
-    <SidePanelWrapper>
-      <Header />
 
-      <ChatAreaStyle>
-        <ChatContentArea chatQuestions={chatQues} />
-        <ChatInputArea />
-      </ChatAreaStyle>
-    </SidePanelWrapper>
+  const handleClick = () => {
+    setView("sidepanel");
+    window.parent.postMessage({ action: "close-float-icon" }, "*");
+  };
+
+  if (!view) return <FloatIconStyle onClick={handleClick} />; // default view
+  return (
+    <>
+      {view === "float-icon" && <FloatIconStyle onClick={handleClick} />}
+      {view === "panel" && (
+        <SidePanelWrapper>
+          <Header />
+
+          <ChatAreaStyle>
+            <ChatContentArea chatQuestions={chatQues} />
+            <ChatInputArea />
+          </ChatAreaStyle>
+        </SidePanelWrapper>
+      )}
+    </>
   );
 }
+
+const FloatIconStyle = styled.button`
+  width: 50px;
+  height: 50px;
+  background-size: cover;
+  background-image: url(${chrome.runtime?.getURL("icons/otto-logo_128.png")});
+  cursor: pointer;
+  border: none;
+`;
 
 const SidePanelWrapper = styled.aside`
   width: auto;
   height: 100vh;
   height: 100vh;
-
 `;
 
 const ChatAreaStyle = styled.div`
@@ -53,5 +75,4 @@ const ChatAreaStyle = styled.div`
   justify-content: space-between;
   min-height: 90vh;
 `;
-
 export default App;

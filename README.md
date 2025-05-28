@@ -16,7 +16,7 @@ Uses domain matching and/or DOM pattern recognition for accurate detection.
 
 #### Development Setup
 
-- git clone https://github.com/your-username/otto-extension.git
+- git clone https://github.com/MedFinder/Otto-chrome-extension.git
 - cd otto-extension
 - npm install
 - npm run build
