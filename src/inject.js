@@ -4,17 +4,36 @@ container.src = chrome.runtime.getURL("index.html");
 container.style.cssText = `
   position: fixed;
   top: 45%;
-  right: 0;
+  right: 10px;
    width: 50px;
   height: 50px;
   border-radius: 50%;
   overflow: hidden;
   z-index: 999999;
   border: 1px solid rgba(133, 80, 255, 1);
+  transform: translateY(70px);
+    transition: all 250ms ease-out;
+
+        &.enter {
+        transform: translateY(0);
+        opacity: 0.6;
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.12), 0px 1px 2px rgba(0, 0, 0, 0.14);
+    }
+    &.expand {
+        width: 250px;
+        max-height: 400px;
+        height: 400px;
+        border-radius: 5px;
+        cursor: auto;
+        opacity: 1;
+    }
+    :focus {
+        outline: 0;
+        box-shadow: 0 0 3pt 2pt rgba(#0EC879, 0.3);
+    }
 `;
 
 document.body.appendChild(container);
-
 
 window.addEventListener("message", (event) => {
   if (event.data?.action === "close-float-icon") {
@@ -53,13 +72,15 @@ window.addEventListener("message", (event) => {
       container.style.cssText = `
         position: fixed;
         top: 45%;
-        right: 0;
+        right: 10px;
         width: 50px;
         height: 50px;
         border-radius: 50%;
         overflow: hidden;
         z-index: 999999;
         border: 1px solid rgba(133, 80, 255, 1);
+        transform: translateY(70px);
+    transition: all 250ms ease-out;
       `;
 
       document.body.appendChild(container);
