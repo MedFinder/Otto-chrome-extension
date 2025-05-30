@@ -1,50 +1,60 @@
-const container = document.createElement("iframe");
-container.id = "float-icon-root";
-container.src = chrome.runtime.getURL("index.html");
-container.style.cssText = `
+window.addEventListener("load", () => {
+  // chrome.storage.local.get("showFloatingButton", (result) => {
+  const container = document.createElement("iframe");
+  container.id = "float-icon-root";
+  container.src = chrome.runtime.getURL("index.html");
+  container.style.cssText = `
   position: fixed;
   top: 45%;
   right: 10px;
-   width: 50px;
+  width: 50px;
   height: 50px;
   border-radius: 50%;
   overflow: hidden;
   z-index: 999999;
   border: 1px solid rgba(133, 80, 255, 1);
-  transform: translateY(70px);
-    transition: all 250ms ease-out;
-
-        &.enter {
-        transform: translateY(0);
-        opacity: 0.6;
-        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.12), 0px 1px 2px rgba(0, 0, 0, 0.14);
-    }
-    &.expand {
-        width: 250px;
-        max-height: 400px;
-        height: 400px;
-        border-radius: 5px;
-        cursor: auto;
-        opacity: 1;
-    }
-    :focus {
-        outline: 0;
-        box-shadow: 0 0 3pt 2pt rgba(#0EC879, 0.3);
-    }
 `;
 
-document.body.appendChild(container);
+  document.body.appendChild(container);
+});
 
-window.addEventListener("message", (event) => {
-  if (event.data?.action === "close-float-icon") {
-    const iframe = document.getElementById("float-icon-root");
-    if (iframe) {
-      iframe.remove();
+const attachClickListeners = () => {
+  const todoItems = document.querySelectorAll(`[data-testid="task-list-item"]`);
 
-      const panel = document.createElement("iframe");
-      panel.id = "extension-root";
-      panel.src = chrome.runtime.getURL("index.html") + "?view=panel";
-      panel.style.cssText = `
+  todoItems.forEach((item) => {
+    // Prevent adding duplicate listeners
+    if (!item.dataset.listenerAttached) {
+      // Double-click event
+      item.addEventListener("dblclick", () => {
+        openSidePanel();
+      });
+
+      // Right-click event (context menu)
+      item.addEventListener("contextmenu", (e) => {
+        e.preventDefault(); // prevent default context menu if you want
+        openSidePanel();
+      });
+
+      item.dataset.listenerAttached = "true";
+    }
+  });
+};
+
+const observer = new MutationObserver(() => {
+  attachClickListeners();
+});
+
+observer.observe(document.body, {
+  childList: true,
+  subtree: true,
+});
+
+const openSidePanel = () => {
+  if (!document.getElementById("extension-root")) {
+    const panel = document.createElement("iframe");
+    panel.id = "extension-root";
+    panel.src = chrome.runtime.getURL("index.html") + "?view=panel";
+    panel.style.cssText = `
         position: fixed;
         top: 0;
         right: 0;
@@ -56,20 +66,16 @@ window.addEventListener("message", (event) => {
         border: none;
         z-index: 999999;
       `;
-
-      document.body.appendChild(panel);
-    }
+    document.body.appendChild(panel);
   }
+};
 
-  if (event.data?.action === "close-extension-panel") {
-    const iframe = document.getElementById("extension-root");
-    if (iframe) {
-      iframe.remove();
-
-      const container = document.createElement("iframe");
-      container.id = "float-icon-root";
-      container.src = chrome.runtime.getURL("index.html") + "?view=float-icon";
-      container.style.cssText = `
+const showFloatIconUI = () => {
+  if (!document.getElementById("float-icon-root")) {
+    const container = document.createElement("iframe");
+    container.id = "float-icon-root";
+    container.src = chrome.runtime.getURL("index.html") + "?view=float-icon";
+    container.style.cssText = `
         position: fixed;
         top: 45%;
         right: 10px;
@@ -79,11 +85,27 @@ window.addEventListener("message", (event) => {
         overflow: hidden;
         z-index: 999999;
         border: 1px solid rgba(133, 80, 255, 1);
-        transform: translateY(70px);
-    transition: all 250ms ease-out;
       `;
 
-      document.body.appendChild(container);
+    document.body.appendChild(container);
+  }
+};
+
+window.addEventListener("message", (event) => {
+  if (event.data?.action === "close-float-icon") {
+    const iframe = document.getElementById("float-icon-root");
+    if (iframe) {
+      iframe.remove();
+
+      openSidePanel();
+    }
+  }
+
+  if (event.data?.action === "close-extension-panel") {
+    const iframe = document.getElementById("extension-root");
+    if (iframe) {
+      iframe.remove();
+      showFloatIconUI();
     }
   }
 });

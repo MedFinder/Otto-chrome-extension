@@ -1,25 +1,84 @@
 import styled from "styled-components";
 import AddIcon from "../../assets/plus-icon.svg";
 import SendIcon from "../../assets/send-icon.svg";
+import { useState } from "react";
 
 const ChatInputArea = () => {
+  const [chat_text, setChat_text] = useState("");
+
+  const handleTextChange = (e) => {
+    const { value } = e.target;
+    setChat_text(value);
+  };
+
+  const handleFileUpload = (e) => {
+    const { name, files } = e.target;
+    console.log(name, files);
+    // handle file upload
+    console.log(e, "uploading file..");
+  };
+
+  const handlePauseTask = (e) => {
+    // pause task.
+    e.preventDefault();
+    console.log("pause task");
+  };
+
+  const markTaskComplete = (e) => {
+    // mark task complete.
+    e.preventDefault();
+    console.log("mark task");
+  };
+
+  const handleSendChat = (e) => {
+    e.preventDefault();
+    // handle API integration.
+    alert(chat_text);
+  };
+
   return (
     <ChatAreaStyled>
       <div className="chatInput_top">
-        <button className="chat_btn">Pause this task</button>
-        <button className="chat_btn">Mark as complete</button>
+        <button className="chat_btn" onClick={(e) => handlePauseTask(e)}>
+          Pause this task
+        </button>
+        <button className="chat_btn" onClick={(e) => markTaskComplete(e)}>
+          Mark as complete
+        </button>
       </div>
 
       <InputTextStyled>
-        <textarea type="text" className="text_area" />
+        <textarea
+          type="text"
+          name="chat_text"
+          className="text_area"
+          placeholder="enter text..."
+          onChange={(e) => handleTextChange(e)}
+        />
 
         <div className="bottom_row">
-          <div className="upload_icon_wrapper">
-            <img src={AddIcon} alt="upload_icon" />
-            <p>Upload File</p>
-          </div>
+          <UploadStyled>
+            <input
+              type="file"
+              accept=".png, .jpg, .jpeg"
+              name={"uploadDoc"}
+              id={"uploadDoc"}
+              className="inputfile inputfile-1"
+              onChange={handleFileUpload}
+            />
 
-          <div className="send_icon_bg">
+            <label htmlFor={"uploadDoc"} className="upload_icon_wrapper">
+              <img src={AddIcon} alt="upload_icon" />
+              <p>Upload File</p>
+            </label>
+          </UploadStyled>
+
+          <div
+            role="button"
+            className="send_icon_bg"
+            onClick={handleSendChat}
+            type="submit"
+          >
             <img src={SendIcon} alt="send_icon" />
           </div>
         </div>
@@ -28,7 +87,30 @@ const ChatInputArea = () => {
   );
 };
 
-const ChatAreaStyled = styled.div`
+const UploadStyled = styled.div`
+  position: relative;
+
+  .inputfile {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+  }
+
+  .upload_icon_wrapper {
+    display: flex;
+    gap: 6px;
+    cursor: pointer;
+
+    p {
+      font-size: 14px;
+      font-weight: 400;
+    }
+  }
+`;
+const ChatAreaStyled = styled.form`
   .chatInput_top {
     display: flex;
     justify-content: flex-end;
@@ -79,12 +161,6 @@ const InputTextStyled = styled.div`
     display: flex;
     justify-content: space-between;
 
-    .upload_icon_wrapper {
-      display: flex;
-      gap: 6px;
-      cursor: pointer;
-    }
-
     .send_icon_bg {
       width: 38px;
       height: 38px;
@@ -93,6 +169,7 @@ const InputTextStyled = styled.div`
       justify-content: center;
       border-radius: 50%;
       background: rgba(133, 80, 255, 1);
+      cursor: pointer;
     }
   }
 `;

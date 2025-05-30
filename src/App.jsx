@@ -31,17 +31,19 @@ const App =()=> {
   ]);
 
   const handleClick = () => {
-    setView("sidepanel");
     window.parent.postMessage({ action: "close-float-icon" }, "*");
+    setView("sidepanel");
+
   };
 
+  console.log(view)
   if (!view) return <FloatIconStyle onClick={handleClick} />; // default view
   return (
     <>
       {view === "float-icon" && <FloatIconStyle onClick={handleClick} />}
       {view === "panel" && (
         <SidePanelWrapper>
-          <Header />
+          <Header setView={setView}/>
 
           <ChatAreaStyle>
             <ChatContentArea chatQuestions={chatQues} />
