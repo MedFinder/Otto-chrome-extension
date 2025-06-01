@@ -5,8 +5,7 @@
     "manifest_version": 3,
     "permissions": [
         "scripting",
-        "activeTab",
-        "storage"
+        "activeTab"
     ],
     "host_permissions": [
         "*://*.todoist.com/*",
@@ -47,6 +46,9 @@
             "run_at": "document_idle"
         }
     ],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self';"
+    },
     "web_accessible_resources": [
         {
             "resources": [
@@ -54,7 +56,8 @@
                 "main.js",
                 "index.js",
                 "assets/*",
-                "icons/*"
+                "icons/*",
+                "inject.css"
             ],
             "matches": [
                 "<all_urls>"

@@ -3,7 +3,7 @@ import AddIcon from "../../assets/plus-icon.svg";
 import SendIcon from "../../assets/send-icon.svg";
 import { useState } from "react";
 
-const ChatInputArea = () => {
+const ChatInputArea = ({ handleSendChat }) => {
   const [chat_text, setChat_text] = useState("");
 
   const handleTextChange = (e) => {
@@ -30,10 +30,10 @@ const ChatInputArea = () => {
     console.log("mark task");
   };
 
-  const handleSendChat = (e) => {
+  const sendChart = (e) => {
     e.preventDefault();
-    // handle API integration.
-    alert(chat_text);
+   handleSendChat(chat_text);
+   setChat_text("");
   };
 
   return (
@@ -51,6 +51,7 @@ const ChatInputArea = () => {
         <textarea
           type="text"
           name="chat_text"
+          value={chat_text}
           className="text_area"
           placeholder="enter text..."
           onChange={(e) => handleTextChange(e)}
@@ -76,7 +77,7 @@ const ChatInputArea = () => {
           <div
             role="button"
             className="send_icon_bg"
-            onClick={handleSendChat}
+            onClick={sendChart}
             type="submit"
           >
             <img src={SendIcon} alt="send_icon" />

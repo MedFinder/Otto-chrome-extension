@@ -1,23 +1,34 @@
+import { useEffect, useRef } from "react";
 import styled from "styled-components";
 
-const ChatContentArea = ({ chatQuestions }) => {
+const ChatContentArea = ({ chats }) => {
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chats]);
+
   return (
     <ContentAreaStyle>
-      {chatQuestions?.map((chatQues) => (
-        <div key={chatQues.id} className="ques_wrapper">
-          {chatQues?.questions?.map((item, index) => (
-            <div key={index}>
-              <p className="ques_wrapper_item">{item.ques}</p>
-              {item.reply && <p className="ques_wrapper_reply">{item.reply}</p>}
-            </div>
-          ))}
+      {chats?.map((item, index) => (
+        <div key={index} className="ques_wrapper">
+          {item.from === "assistant" && (
+            <p className="ques_wrapper_reply">{item.text}</p>
+          )}
+          {item.from === "user" && (
+            <p className="ques_wrapper_item">{item.text}</p>
+          )}
         </div>
       ))}
+      <div ref={bottomRef} />
     </ContentAreaStyle>
   );
 };
 
 const ContentAreaStyle = styled.section`
+  max-height: 670px;
+  overflow-y: auto;
+
   .ques_wrapper {
     margin-bottom: 1.8rem;
   }
@@ -31,12 +42,12 @@ const ContentAreaStyle = styled.section`
     margin-bottom: 0.75rem;
   }
 
-  .ques_wrapper_item{
-  background: rgba(244, 244, 244, 1);
-  padding: 8px 16px;
-  border-radius: 30px;
-  width: max-content;
-  margin-left: auto;
+  .ques_wrapper_item {
+    background: rgba(244, 244, 244, 1);
+    padding: 8px 16px;
+    border-radius: 30px;
+    width: max-content;
+    margin-left: auto;
   }
 `;
 

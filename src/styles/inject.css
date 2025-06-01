@@ -1,0 +1,24 @@
+.otto-side-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 500px;
+  height: 100vh;
+  background-color: #fff;
+  box-shadow: 0px 0px 40px 0px rgba(0, 0, 0, 0.15);
+  padding: 18px 14px;
+  border: none;
+  z-index: 999999;
+}
+
+.otto-float-icon{
+    position: fixed;
+    top: 45%;
+    right: 10px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 999999;
+    border: 1px solid rgba(133, 80, 255, 1);
+}

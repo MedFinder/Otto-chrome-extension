@@ -15,21 +15,32 @@ export default defineConfig({
       targets: [
         {
           src: "./manifest.json",
-          dest: ".", 
+          dest: ".",
+        },
+        {
+          src: "./src/styles/inject.css", // <-- Add this
+          dest: ".", // puts it in `dist/`
         },
       ],
     }),
   ],
+  esbuild: {
+    legalComments: 'none', // <- This is the correct place
+  },
   build: {
+    minify: "esbuild",
     rollupOptions: {
       input: {
         index: resolve(__dirname, "index.html"),
-        main: resolve(__dirname, '/src/main.jsx'),
-        inject: resolve(__dirname, '/src/inject.js'),
-        background: resolve(__dirname, "/src/background.js"),
+        main: resolve(__dirname, "src/main.jsx"),
+        inject: resolve(__dirname, "src/inject.js"),
+        background: resolve(__dirname, "src/background.js"),
       },
+
       output: {
         entryFileNames: "[name].js",
+        inlineDynamicImports: false,
+        manualChunks: undefined,
       },
     },
     outDir: "dist",
