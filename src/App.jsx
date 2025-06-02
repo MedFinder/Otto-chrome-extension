@@ -19,58 +19,55 @@ const App = () => {
     },
   ]);
 
-  const handleClick = () => {
-    window.parent.postMessage({ action: "close-float-icon" }, "*");
-    setView("sidepanel");
-  };
+  const connectWebSocket = useCallback(
+    async (requestId) => {
+      if (wsRef?.current) {
+        console.log("Reusing existing WebSocket connection...");
+        return; // Exit if the WebSocket is already connected
+      }
 
-  const connectWebSocket = useCallback(async (requestId) => {
-    if (wsRef?.current) {
-      console.log("Reusing existing WebSocket connection...");
-      return; // Exit if the WebSocket is already connected
-    }
+      const url = `wss://callai-backend-243277014955.us-central1.run.app/ws/chat/${requestId}`;
 
-    const url = `wss://callai-backend-243277014955.us-central1.run.app/ws/chat/${requestId}`;
+      wsRef.current = new WebSocket(url);
 
-    wsRef.current = new WebSocket(url);
+      wsRef.current.onopen = () => {
+        console.log("WebSocket connected successfully and opened.");
+      };
 
-    wsRef.current.onopen = () => {
-      console.log("WebSocket connected successfully and opened.");
-    };
+      wsRef.current.onmessage = async (event) => {
+        const chunk = event.data;
 
-    wsRef.current.onmessage = async (event) => {
-      const chunk = event.data;
+        setChatQues((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
 
-      setChatQues((prev) => {
-        const updated = [...prev];
-        const last = updated[updated.length - 1];
+          if (last?.from === "assistant" || last.from === undefined) {
+            updated[updated.length - 1] = {
+              ...last,
+              text: chunk,
+            };
+          }
 
-        if (last?.from === "assistant" || last.from === undefined) {
-          updated[updated.length - 1] = {
-            ...last,
-            text: chunk,
-          };
-        }
+          return updated;
+        });
+      };
 
-        return updated;
-      });
-    };
+      wsRef.current.onclose = () => {
+        console.log("WebSocket disconnected");
+        wsRef.current = null; // Reset the WebSocket reference
+      };
 
-    wsRef.current.onclose = () => {
-      console.log("WebSocket disconnected");
-      wsRef.current = null; // Reset the WebSocket reference
-    };
-
-    wsRef.current.onerror = (error) => {
-      console.log("Retrying WebSocket connection in 5 seconds...", error);
-      wsRef.current = null; // clear ref before retry
-      setTimeout(() => {
-        const id = localStorage.getItem("requestID");
-        if (id) connectWebSocket(id);
-      }, 5000);
-    };
-
-  },[setChatQues]);
+      wsRef.current.onerror = (error) => {
+        console.log("Retrying WebSocket connection in 5 seconds...", error);
+        wsRef.current = null; // clear ref before retry
+        setTimeout(() => {
+          const id = localStorage.getItem("requestID");
+          if (id) connectWebSocket(id);
+        }, 5000);
+      };
+    },
+    [setChatQues]
+  );
 
   const retrieveRequestId = async (ipaddress) => {
     const default_ip = localStorage.getItem("ipAddress");
@@ -87,7 +84,7 @@ const App = () => {
       if (response.data) {
         const request_id = response.data.request_id;
         localStorage.setItem("requestID", request_id);
-        sessionStorage.setItem("GET_REQUEST_ID", "called");
+        localStorage.setItem("GET_REQUEST_ID", "called");
         connectWebSocket(request_id);
       } else {
         toast.error("Could not retrieve your ");
@@ -116,6 +113,11 @@ const App = () => {
     }
   };
 
+  const handleClick = () => {
+    window.parent.postMessage({ action: "close-float-icon" }, "*");
+    setView("sidepanel");
+  };
+
   const handleSendChat = (text) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       const userMessage = { id: Date.now() + "-user", from: "user", text };
@@ -138,12 +140,13 @@ const App = () => {
   }, [connectWebSocket]);
 
   useEffect(() => {
-    const isRequestID = sessionStorage.getItem("GET_REQUEST_ID") === "called";
+    const isRequestID = localStorage.getItem("GET_REQUEST_ID") === "called";
     if (!isRequestID) {
       getLocationFromIP();
     }
   }, []);
 
+  console.log(chatQues)
   if (!view) return <FloatIconStyle onClick={handleClick} />; // default view
   return (
     <>
@@ -153,7 +156,7 @@ const App = () => {
           <Header setView={setView} />
 
           <ChatAreaStyle>
-            <ChatContentArea chats={chatQues}/>
+            <ChatContentArea chats={chatQues} />
             <ChatInputArea handleSendChat={handleSendChat} />
           </ChatAreaStyle>
         </SidePanelWrapper>
