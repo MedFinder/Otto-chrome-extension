@@ -17,8 +17,9 @@ const SidePanelComponent = ({
   useEffect(() => {
     if (!taskItem?.taskId) return;
 
-    connectSocket(taskItem?.taskId);
-  }, [taskItem?.taskId, connectSocket]);
+    const ipAddress = localStorage.getItem("ipAddress");
+    connectSocket(ipAddress);
+  }, [taskItem?.taskId]);
 
   useEffect(() => {
     const handleMessage = (event) => {
@@ -28,8 +29,6 @@ const SidePanelComponent = ({
           text: event.data.task?.taskText || "",
           taskId: event.data.task?.taskId,
         }));
-
-        localStorage.setItem("selectedItemID", event.data.task?.taskId);
       }
     };
 

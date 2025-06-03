@@ -64,7 +64,7 @@ const attachClickListeners = () => {
     }
   });
 };
-
+6605
 const observer = new MutationObserver(attachClickListeners);
 observer.observe(document.body, {
   childList: true,

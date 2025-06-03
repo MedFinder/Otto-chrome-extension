@@ -25,21 +25,19 @@ const App = () => {
       wsRef.current = null;
 
       // remove initial request ID
-      localStorage.removeItem('requestID')
+      localStorage.removeItem("requestID");
     }
   };
 
   const connectWebSocket = useCallback(
-    async (requestId, source = "default") => {
+    async (requestId) => {
       if (wsRef.current) {
         console.log("🔁 Reusing existing WebSocket connection...");
         return;
       }
 
       const url = `wss://callai-backend-243277014955.us-central1.run.app/ws/chat/${requestId}`;
-      console.log(
-        `🔌 Connecting WebSocket for requestId: ${requestId} [source: ${source}]`
-      );
+      console.log(`🔌 Connecting WebSocket for requestId: ${requestId}`);
 
       wsRef.current = new WebSocket(url);
 
@@ -75,7 +73,7 @@ const App = () => {
         wsRef.current = null;
         setTimeout(() => {
           const id = localStorage.getItem("requestID");
-          if (id) connectWebSocket(id, source);
+          if (id) connectWebSocket(id);
         }, 5000);
       };
     },
@@ -96,7 +94,7 @@ const App = () => {
         const request_id = response.data.request_id;
         localStorage.setItem("requestID", request_id);
         localStorage.setItem("GET_REQUEST_ID", "called");
-        connectWebSocket(request_id, "initial");
+        await connectWebSocket(request_id, "initial");
       } else {
         toast.error("Could not retrieve your ");
       }
@@ -112,7 +110,7 @@ const App = () => {
       if (ipGeolocationResponse.data) {
         const ip_address = ipGeolocationResponse.data.ip;
         localStorage.setItem("ipAddress", ip_address);
-        retrieveRequestId(ip_address);
+        await retrieveRequestId(ip_address);
       } else {
         toast.error(
           "Could not determine your location. Using default location."
@@ -124,9 +122,15 @@ const App = () => {
     }
   };
 
-  const handleClick = () => {
+  const handleClick = async () => {
     window.parent.postMessage({ action: "close-float-icon" }, "*");
-    setView("sidepanel");
+
+    const requestId = localStorage.getItem("requestID");
+    if (requestId == null) {
+      localStorage.removeItem("GET_REQUEST_ID");
+    } else {
+      setView("panel");
+    }
   };
 
   const handleSendChat = (text) => {
@@ -146,7 +150,7 @@ const App = () => {
   useEffect(() => {
     const requestId = localStorage.getItem("requestID");
     if (requestId) {
-      connectWebSocket(requestId, "initial");
+      connectWebSocket(requestId);
     }
   }, [connectWebSocket]);
 
@@ -166,7 +170,7 @@ const App = () => {
           setView={setView}
           chatQues={chatQues}
           handleSendChat={handleSendChat}
-          connectSocket={(id) => connectWebSocket(id, 'task')}
+          connectSocket={(id) => retrieveRequestId(id)}
           closeWebSocket={closeWebSocket}
         />
       )}
