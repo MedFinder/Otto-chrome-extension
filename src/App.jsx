@@ -1,15 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import ChatContentArea from "./components/chats/chatContent";
-import ChatInputArea from "./components/chats/chatInput";
-import Header from "./components/header";
 import styled from "styled-components";
 import "./styles/index.css";
 import { toast } from "sonner";
 import axios from "axios";
+import SidePanelComponent from "./SidePanel";
 
 const App = () => {
   const wsRef = useRef(null);
   const params = new URLSearchParams(window.location.search);
+
   const [view, setView] = useState(params.get("view"));
   const [chatQues, setChatQues] = useState([
     {
@@ -19,22 +18,36 @@ const App = () => {
     },
   ]);
 
+  const closeWebSocket = () => {
+    if (wsRef.current) {
+      console.log("❌ Closing WebSocket connection manually");
+      wsRef.current.close();
+      wsRef.current = null;
+
+      // remove initial request ID
+      localStorage.removeItem('requestID')
+    }
+  };
+
   const connectWebSocket = useCallback(
-    async (requestId) => {
-      if (wsRef?.current) {
-        console.log("Reusing existing WebSocket connection...");
-        return; // Exit if the WebSocket is already connected
+    async (requestId, source = "default") => {
+      if (wsRef.current) {
+        console.log("🔁 Reusing existing WebSocket connection...");
+        return;
       }
 
       const url = `wss://callai-backend-243277014955.us-central1.run.app/ws/chat/${requestId}`;
+      console.log(
+        `🔌 Connecting WebSocket for requestId: ${requestId} [source: ${source}]`
+      );
 
       wsRef.current = new WebSocket(url);
 
       wsRef.current.onopen = () => {
-        console.log("WebSocket connected successfully and opened.");
+        console.log("✅ WebSocket connected successfully.");
       };
 
-      wsRef.current.onmessage = async (event) => {
+      wsRef.current.onmessage = (event) => {
         const chunk = event.data;
 
         setChatQues((prev) => {
@@ -53,16 +66,16 @@ const App = () => {
       };
 
       wsRef.current.onclose = () => {
-        console.log("WebSocket disconnected");
-        wsRef.current = null; // Reset the WebSocket reference
+        console.log("❌ WebSocket disconnected");
+        wsRef.current = null;
       };
 
       wsRef.current.onerror = (error) => {
-        console.log("Retrying WebSocket connection in 5 seconds...", error);
-        wsRef.current = null; // clear ref before retry
+        console.error("⚠️ WebSocket error. Retrying in 5s...", error);
+        wsRef.current = null;
         setTimeout(() => {
           const id = localStorage.getItem("requestID");
-          if (id) connectWebSocket(id);
+          if (id) connectWebSocket(id, source);
         }, 5000);
       };
     },
@@ -70,11 +83,9 @@ const App = () => {
   );
 
   const retrieveRequestId = async (ipaddress) => {
-    const default_ip = localStorage.getItem("ipAddress");
-
     const data = {
       device_category: "web",
-      device_ip_address: ipaddress ?? default_ip,
+      device_ip_address: ipaddress,
     };
     try {
       const response = await axios.post(
@@ -85,7 +96,7 @@ const App = () => {
         const request_id = response.data.request_id;
         localStorage.setItem("requestID", request_id);
         localStorage.setItem("GET_REQUEST_ID", "called");
-        connectWebSocket(request_id);
+        connectWebSocket(request_id, "initial");
       } else {
         toast.error("Could not retrieve your ");
       }
@@ -135,9 +146,17 @@ const App = () => {
   useEffect(() => {
     const requestId = localStorage.getItem("requestID");
     if (requestId) {
-      connectWebSocket(requestId);
+      connectWebSocket(requestId, "initial");
     }
   }, [connectWebSocket]);
+
+  useEffect(() => {
+    return () => {
+      if (wsRef.current) {
+        closeWebSocket();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const isRequestID = localStorage.getItem("GET_REQUEST_ID") === "called";
@@ -146,20 +165,18 @@ const App = () => {
     }
   }, []);
 
-  console.log(chatQues)
   if (!view) return <FloatIconStyle onClick={handleClick} />; // default view
   return (
     <>
       {view === "float-icon" && <FloatIconStyle onClick={handleClick} />}
       {view === "panel" && (
-        <SidePanelWrapper>
-          <Header setView={setView} />
-
-          <ChatAreaStyle>
-            <ChatContentArea chats={chatQues} />
-            <ChatInputArea handleSendChat={handleSendChat} />
-          </ChatAreaStyle>
-        </SidePanelWrapper>
+        <SidePanelComponent
+          setView={setView}
+          chatQues={chatQues}
+          handleSendChat={handleSendChat}
+          connectSocket={(id) => connectWebSocket(id, 'task')}
+          closeWebSocket={closeWebSocket}
+        />
       )}
     </>
   );
@@ -174,16 +191,4 @@ const FloatIconStyle = styled.button`
   border: none;
 `;
 
-const SidePanelWrapper = styled.aside`
-  width: 100vw;
-  height: 100vh;
-`;
-
-const ChatAreaStyle = styled.div`
-  width: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 90vh;
-`;
 export default App;

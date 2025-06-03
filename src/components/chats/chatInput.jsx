@@ -1,10 +1,16 @@
 import styled from "styled-components";
 import AddIcon from "../../assets/plus-icon.svg";
 import SendIcon from "../../assets/send-icon.svg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const ChatInputArea = ({ handleSendChat }) => {
+const ChatInputArea = ({ handleSendChat, initialText }) => {
   const [chat_text, setChat_text] = useState("");
+
+  useEffect(() => {
+    if (initialText !== undefined) {
+      setChat_text(initialText);
+    }
+  }, [initialText]);
 
   const handleTextChange = (e) => {
     const { value } = e.target;
@@ -32,8 +38,8 @@ const ChatInputArea = ({ handleSendChat }) => {
 
   const sendChart = (e) => {
     e.preventDefault();
-   handleSendChat(chat_text);
-   setChat_text("");
+    handleSendChat(chat_text);
+    setChat_text("");
   };
 
   return (

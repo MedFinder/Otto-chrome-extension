@@ -2,11 +2,12 @@ import OttoLogo from "../../assets/otto-logo.svg";
 import FiltreIcon from "../../assets/filter_big.svg";
 import styled from "styled-components";
 
-const Header = ({setView}) => {
+const Header = ({setView, closeConnection}) => {
 
   const handleCloseExtension =()=> {
     window.parent.postMessage({ action: "close-extension-panel" }, "*");
-    setView('float-icon')
+    setView('float-icon');
+    closeConnection()
   }
   return (
     <HeaderWrapper>

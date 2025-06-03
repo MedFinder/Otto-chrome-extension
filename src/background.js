@@ -1,5 +1,5 @@
-// runs once on install
-chrome.runtime.onInstalled.addListener(async () => {
-  console.log("Extension installed.");
-  // chrome.storage.local.set({ showFloatingButton: false });
+// Create context menu ONCE (on extension install)
+chrome.runtime.onInstalled.addListener(() => {
+console.log('Extension installed')
 });
+
