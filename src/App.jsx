@@ -151,14 +151,6 @@ const App = () => {
   }, [connectWebSocket]);
 
   useEffect(() => {
-    return () => {
-      if (wsRef.current) {
-        closeWebSocket();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
     const isRequestID = localStorage.getItem("GET_REQUEST_ID") === "called";
     if (!isRequestID) {
       getLocationFromIP();
